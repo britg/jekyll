@@ -113,7 +113,12 @@ module Jekyll
     end
 
     def textile(content)
-      RedCloth.new(content).to_html
+      redcloth = RedCloth.new(content, 
+        [:filter_html, :filter_styles])
+      
+      redcloth.hard_breaks = false
+      
+      redcloth.to_html
     end
 
     # Do the actual work of processing the site and generating the
