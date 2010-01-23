@@ -44,7 +44,7 @@ opts = OptionParser.new do |opts|
     options['pygments'] = true
   end
   
-  opts.on("--pygments-cache", "Path to cache pygments output in, for faster re-rendering") do |path|
+  opts.on("--pygments-cache [PATH]", "Path to cache pygments output in, for faster re-rendering") do |path|
     options['pygments_cache'] = path
   end
 
