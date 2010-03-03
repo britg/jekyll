@@ -12,6 +12,8 @@ begin
     s.homepage = "http://github.com/mojombo/jekyll"
     s.description = "Jekyll is a simple, blog aware, static site generator."
     s.authors = ["Tom Preston-Werner"]
+    s.authors = ["Henrik Nyh"]
+    s.authors = ["Kaspar Schiess"]
     s.rubyforge_project = "jekyll"
     s.files.exclude 'test/dest'
     s.test_files.exclude 'test/dest'
