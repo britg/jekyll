@@ -25,7 +25,8 @@ module Jekyll
       if self.content =~ /^(---\s*\n.*?\n?)^(---\s*$\n?)/m
         self.content = self.content[($1.size + $2.size)..-1]
       
-        self.data = YAML.load($1)
+        self.data ||= {}
+        self.data = self.data.merge(YAML.load($1) || {})
       end
       
       self.data ||= {}

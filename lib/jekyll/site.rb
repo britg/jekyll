@@ -4,7 +4,7 @@ module Jekyll
     
     attr_accessor :config, :layouts, :posts, :pages, :static_files, :categories, :exclude,
                   :source, :dest, :lsi, :pygments, :permalink_style, :tags
-    attr_accessor :pygments_cache, :haml, :sass
+    attr_accessor :pygments_cache, :haml, :sass, :post_defaults
 
     # Initialize the site
     #   +config+ is a Hash containing site configurations details
@@ -20,6 +20,7 @@ module Jekyll
       self.pygments_cache  = config['pygments_cache']
       self.permalink_style = config['permalink'].to_sym
       self.exclude         = config['exclude'] || []
+      self.post_defaults   = config['post_defaults'] || {}
 
       self.reset
       self.setup

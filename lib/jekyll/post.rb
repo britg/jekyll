@@ -36,6 +36,7 @@ module Jekyll
 
       self.categories = dir.split('/').reject { |x| x.empty? }
       self.process(name)
+      self.data = self.site.post_defaults.dup
       self.read_yaml(@base, name)
 
       #If we've added a date and time to the yaml, use that instead of the filename date
