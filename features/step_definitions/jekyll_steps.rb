@@ -116,8 +116,6 @@ Then /^the (.*) directory should exist$/ do |dir|
 end
 
 Then /^I should see "(.*)" in "(.*)"$/ do |text, file|
-  p file
-  p File.read(file)
   assert_match Regexp.new(text), File.open(file).readlines.join
 end
 
