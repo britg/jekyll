@@ -183,11 +183,6 @@ module Jekyll
     end
 
     def render
-      self.posts.each do |post|
-        post.render(self.layouts, site_payload)
-        self.collated_posts[post.date.year][post.date.month][post.date.day].unshift(post)
-      end
-
       self.pages.dup.each do |page|
         if Pager.pagination_enabled?(self.config, page.name)
           paginate(page)

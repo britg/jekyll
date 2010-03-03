@@ -323,7 +323,7 @@ class TestPost < Test::Unit::TestCase
           post = setup_post("2008-11-21-complex.textile")
           do_render(post)
 
-          assert_equal "<<< <p>url: /2008/11/21/complex.html<br />\ndate: #{Time.parse("2008-11-21")}<br />\nid: /2008/11/21/complex</p> >>>", post.output
+          assert_equal "<<< <p>url: /2008/11/21/complex.html\ndate: #{Time.parse("2008-11-21")}\nid: /2008/11/21/complex</p> >>>", post.output
         end
 
         should "include templates" do

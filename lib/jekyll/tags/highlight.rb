@@ -35,14 +35,13 @@ module Jekyll
         if File.exist?(path)
           highlighted_code = File.read(path)
         else
-          highlighted_code = Albino.new(code, @lang).to_s(@options)
+          highlighted_code = add_code_tags(Albino.new(code, @lang).to_s(@options), @lang)
           File.open(path, 'w') {|f| f.print(highlighted_code) }
         end
       else
-        highlighted_code = Albino.new(code, @lang).to_s(@options)
+        highlighted_code = add_code_tags(Albino.new(code, @lang).to_s(@options), @lang)
       end
         
-      output = add_code_tags(Albino.new(code, @lang).to_s(@options), @lang)
       case context["content_type"]
         when "markdown" then "\n" + highlighted_code + "\n"
         when "textile" then "<notextile>" + highlighted_code + "</notextile>"
