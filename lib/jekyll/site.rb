@@ -139,6 +139,7 @@ module Jekyll
     def read
       self.read_layouts # existing implementation did this at top level only so preserved that
       self.read_directories
+      self.transform_sass if self.sass
     end
 
     # Read all the files in <source>/<dir>/_layouts and create a new Layout
@@ -264,7 +265,6 @@ module Jekyll
         output = File.open(File.join(self.dest, dir, f).gsub(/.sass\Z/, ".css"), "w") do |o|
           o.write(result)
         end
-        FileUtils.rm(File.join(self.dest, dir, f))
       end
     end
 
