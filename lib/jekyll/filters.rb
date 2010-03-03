@@ -17,6 +17,10 @@ module Jekyll
       date.xmlschema
     end
 
+    def time_to_string(date)
+      date.strftime("%d %b %Y, %H:%M")
+    end
+
     def date_to_utc(date)
       date.utc
     end

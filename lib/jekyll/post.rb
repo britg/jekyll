@@ -8,10 +8,12 @@ module Jekyll
       attr_accessor :lsi
     end
 
-    MATCHER = /^(.+\/)*(\d+-\d+-\d+)-(.*)(\.[^.]+)$/
+    MATCHER = /^(.+\/)*(\d+-\d+-\d+(?:_\d+-\d+)?)-(.*)(\.[^.]+)$/
 
     # Post name validator. Post filenames must be like:
     #   2008-11-05-my-awesome-post.textile
+    # or:
+    #   2008-11-05_12-45-my-awesome-post.textile
     #
     # Returns <Bool>
     def self.valid?(name)
@@ -76,6 +78,7 @@ module Jekyll
     # Returns nothing
     def process(name)
       m, cats, date, slug, ext = *name.match(MATCHER)
+      date = date.sub(/_(\d+)-(\d+)\Z/, ' \1:\2')  # Make optional time part parsable.
       self.date = Time.parse(date)
       self.slug = slug
       self.ext = ext
@@ -202,6 +205,11 @@ module Jekyll
     #
     # Returns <Hash>
     def to_liquid
+      if self.data.key?("time")
+        time = Time.parse(self.data["time"])
+        self.date = Time.mktime(self.date.year, self.date.month, self.date.day, time.hour, time.min)
+      end
+
       { "title"      => self.title,
         "url"        => self.url,
         "date"       => self.date,
