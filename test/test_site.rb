@@ -9,17 +9,27 @@ class TestSite < Test::Unit::TestCase
       @site = Site.new(Jekyll.configuration)
     end
 
+    should "have an empty tag hash by default" do
+      assert_equal Hash.new, @site.tags
+    end
+
     should "reset data before processing" do
       clear_dest
       @site.process
       before_posts = @site.posts.length
       before_layouts = @site.layouts.length
       before_categories = @site.categories.length
+      before_tags = @site.tags.length
+      before_pages = @site.pages.length
+      before_static_files = @site.static_files.length
 
       @site.process
       assert_equal before_posts, @site.posts.length
       assert_equal before_layouts, @site.layouts.length
       assert_equal before_categories, @site.categories.length
+      assert_equal before_tags, @site.tags.length
+      assert_equal before_pages, @site.pages.length
+      assert_equal before_static_files, @site.static_files.length
     end
 
     should "read layouts" do
@@ -38,7 +48,7 @@ class TestSite < Test::Unit::TestCase
       @site.process
 
       posts = Dir[source_dir("**", "_posts", "*")]
-      categories = %w(bar baz category foo z_category publish_test).sort
+      categories = %w(bar baz category foo z_category publish_test win).sort
 
       assert_equal posts.size - 1, @site.posts.size
       assert_equal categories, @site.categories.keys.sort
@@ -48,10 +58,34 @@ class TestSite < Test::Unit::TestCase
     should "filter entries" do
       ent1 = %w[foo.markdown bar.markdown baz.markdown #baz.markdown#
               .baz.markdow foo.markdown~]
-      ent2 = %w[.htaccess _posts bla.bla]
+      ent2 = %w[.htaccess _posts _pages bla.bla]
 
       assert_equal %w[foo.markdown bar.markdown baz.markdown], @site.filter_entries(ent1)
-      assert_equal ent2, @site.filter_entries(ent2)
+      assert_equal %w[.htaccess bla.bla], @site.filter_entries(ent2)
     end
+
+    should "filter entries with exclude" do
+      excludes = %w[README TODO]
+      includes = %w[index.html site.css]
+
+      @site.exclude = excludes
+      assert_equal includes, @site.filter_entries(excludes + includes)
+    end
+    
+    context 'with an invalid markdown processor in the configuration' do
+      
+      should 'give a meaningful error message' do
+        bad_processor = 'not a processor name'
+        begin
+          Site.new(Jekyll.configuration.merge({ 'markdown' => bad_processor }))
+          flunk 'Invalid markdown processors should cause a failure on site creation'
+        rescue RuntimeError => e
+          assert e.to_s =~ /invalid|bad/i
+          assert e.to_s =~ %r{#{bad_processor}}
+        end
+      end
+      
+    end
+    
   end
 end

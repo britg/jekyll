@@ -3,6 +3,10 @@
 #
 # Requires
 #   self.site -> Jekyll::Site
+#   self.content=
+#   self.data=
+#   self.ext=
+#   self.output=
 module Jekyll
   module Convertible
     # Return the contents as a string
@@ -17,13 +21,14 @@ module Jekyll
     # Returns nothing
     def read_yaml(base, name)
       self.content = File.read(File.join(base, name))
-
-      if self.content =~ /^(---\s*\n.*?)\n---\s*\n/m
-        self.content = self.content[($1.size + 5)..-1]
-
-        self.data ||= {}
-        self.data = self.data.merge(YAML.load($1))
+      
+      if self.content =~ /^(---\s*\n.*?\n?)^(---\s*$\n?)/m
+        self.content = self.content[($1.size + $2.size)..-1]
+      
+        self.data = YAML.load($1)
       end
+      
+      self.data ||= {}
     end
 
     # Transform the contents based on the file extension.
@@ -52,7 +57,7 @@ module Jekyll
       case self.ext[1..-1]
       when /textile/i
         return 'textile'
-      when /markdown/i, /mkdn/i, /md/i
+      when /markdown/i, /mkdn/i, /md/i, /mkd/i
         return 'markdown'
       when /haml/i
         return 'haml'

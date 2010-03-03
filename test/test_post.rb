@@ -25,7 +25,6 @@ class TestPost < Test::Unit::TestCase
       assert !Post.valid?("blah")
     end
 
-
     context "processing posts" do
       setup do
         @post = Post.allocate
@@ -37,6 +36,7 @@ class TestPost < Test::Unit::TestCase
       end
 
       should "keep date, title, and markup type" do
+        @post.categories = []
         @post.process(@fake_file)
 
         assert_equal Time.parse("2008-10-19"), @post.date
@@ -52,6 +52,13 @@ class TestPost < Test::Unit::TestCase
         assert_equal "/2008/10/19/foo-bar.html", @post.url
       end
 
+      should "CGI escape urls" do
+        @post.categories = []
+        @post.process("2009-03-12-hash-#1.markdown")
+        assert_equal "/2009/03/12/hash-%231.html", @post.url
+        assert_equal "/2009/03/12/hash-#1", @post.id
+      end
+
       should "respect permalink in yaml front matter" do
         file = "2008-12-03-permalinked-post.textile"
         @post.process(file)
@@ -60,6 +67,31 @@ class TestPost < Test::Unit::TestCase
         assert_equal "my_category/permalinked-post", @post.permalink
         assert_equal "my_category", @post.dir
         assert_equal "my_category/permalinked-post", @post.url
+      end
+
+      context "with CRLF linebreaks" do
+        setup do
+          @real_file = "2009-05-24-yaml-linebreak.markdown"
+          @source = source_dir('win/_posts')
+        end
+        should "read yaml front-matter" do
+          @post.read_yaml(@source, @real_file)
+
+          assert_equal({"title" => "Test title", "layout" => "post", "tag" => "Ruby"}, @post.data)
+          assert_equal "This is the content", @post.content
+        end
+      end
+
+      context "with embedded triple dash" do
+        setup do
+          @real_file = "2010-01-08-triple-dash.markdown"
+        end
+        should "consume the embedded dashes" do
+          @post.read_yaml(@source, @real_file)
+
+          assert_equal({"title" => "Foo --- Bar"}, @post.data)
+          assert_equal "Triple the fun!", @post.content
+        end
       end
 
       context "with site wide permalink" do
@@ -99,7 +131,7 @@ class TestPost < Test::Unit::TestCase
 
           should "process the url correctly" do
             assert_equal "/:categories/:year/:month/:day/:title.html", @post.template
-            assert_equal "/beer/food/2008/10/19/foo-bar.html", @post.url
+            assert_equal "/food/beer/2008/10/19/foo-bar.html", @post.url
           end
         end
 
@@ -122,8 +154,8 @@ class TestPost < Test::Unit::TestCase
           end
 
           should "process the url correctly" do
-            assert_equal "/:categories/:year/:month/:day/:title", @post.template
-            assert_equal "/2008/10/19/foo-bar", @post.url
+            assert_equal "/:categories/:year/:month/:day/:title/", @post.template
+            assert_equal "/2008/10/19/foo-bar/", @post.url
           end
         end
 
@@ -144,7 +176,7 @@ class TestPost < Test::Unit::TestCase
         @post.read_yaml(@source, @real_file)
 
         assert_equal({"title" => "Foo Bar", "layout" => "default"}, @post.data)
-        assert_equal "\nh1. {{ page.title }}\n\nBest *post* ever", @post.content
+        assert_equal "h1. {{ page.title }}\n\nBest *post* ever", @post.content
       end
 
       should "transform textile" do
@@ -193,6 +225,16 @@ class TestPost < Test::Unit::TestCase
         assert_equal false, post.published
       end
 
+      should "recognize date in yaml" do
+        post = setup_post("2010-01-09-date-override.textile")
+        assert_equal "/2010/01/10/date-override.html", post.url
+      end
+
+      should "recognize time in yaml" do
+        post = setup_post("2010-01-09-time-override.textile")
+        assert_equal "/2010/01/10/time-override.html", post.url
+      end
+
       should "recognize category in yaml" do
         post = setup_post("2009-01-27-category.textile")
         assert post.categories.include?('foo')
@@ -203,6 +245,48 @@ class TestPost < Test::Unit::TestCase
         assert post.categories.include?('foo')
         assert post.categories.include?('bar')
         assert post.categories.include?('baz')
+      end
+
+      should "recognize empty category in yaml" do
+        post = setup_post("2009-01-27-empty-category.textile")
+        assert_equal [], post.categories
+      end
+
+      should "recognize empty categories in yaml" do
+        post = setup_post("2009-01-27-empty-categories.textile")
+        assert_equal [], post.categories
+      end
+
+      should "recognize tag in yaml" do
+        post = setup_post("2009-05-18-tag.textile")
+        assert post.tags.include?('code')
+      end
+
+      should "recognize tags in yaml" do
+        post = setup_post("2009-05-18-tags.textile")
+        assert post.tags.include?('food')
+        assert post.tags.include?('cooking')
+        assert post.tags.include?('pizza')
+      end
+      
+      should "recognize empty tag in yaml" do
+        post = setup_post("2009-05-18-empty-tag.textile")
+        assert_equal [], post.tags
+      end
+
+      should "recognize empty tags in yaml" do
+        post = setup_post("2009-05-18-empty-tags.textile")
+        assert_equal [], post.tags
+      end
+
+      should "allow no yaml" do
+        post = setup_post("2009-06-22-no-yaml.textile")
+        assert_equal "No YAML.", post.content
+      end
+
+      should "allow empty yaml" do
+        post = setup_post("2009-06-22-empty-yaml.textile")
+        assert_equal "Empty YAML.", post.content
       end
 
       context "rendering" do
@@ -255,7 +339,6 @@ class TestPost < Test::Unit::TestCase
     should "generate categories and topics" do
       post = Post.new(@site, File.join(File.dirname(__FILE__), *%w[source]), 'foo', 'bar/2008-12-12-topical-post.textile')
       assert_equal ['foo'], post.categories
-      assert_equal ['bar'], post.topics
     end
 
   end

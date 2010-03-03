@@ -55,6 +55,16 @@ opts = OptionParser.new do |opts|
   opts.on("--permalink [TYPE]", "Use 'date' (default) for YYYY/MM/DD") do |style|
     options['permalink'] = style unless style.nil?
   end
+  
+  opts.on("--paginate [POSTS_PER_PAGE]", "Paginate a blog's posts") do |per_page|
+    begin
+      options['paginate'] = per_page.to_i
+      raise ArgumentError if options['paginate'] == 0
+    rescue
+      puts 'you must specify a number of posts by page bigger than 0'
+      exit 0
+    end
+  end
 
   opts.on("--multiviews", "Don't use .html in links since Apache has 'Options +MultiViews'") do |style|
     options['multiviews'] = true
@@ -143,9 +153,13 @@ if options['server']
 
   FileUtils.mkdir_p(destination)
 
+  mime_types = WEBrick::HTTPUtils::DefaultMimeTypes
+  mime_types.store 'js', 'application/javascript'
+
   s = HTTPServer.new(
     :Port            => options['server_port'],
-    :DocumentRoot    => destination
+    :DocumentRoot    => destination,
+    :MimeTypes       => mime_types
   )
   t = Thread.new {
     s.start

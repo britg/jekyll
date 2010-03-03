@@ -13,7 +13,7 @@ Given /^I have a blank site in "(.*)"$/ do |path|
 end
 
 # Like "I have a foo file" but gives a yaml front matter so jekyll actually processes it
-Given /^I have an "(.*)" page(?: with (.*) "(.*)")? that contains "(.*)"$/ do |file, key, value, text|
+Given /^I have an? "(.*)" page(?: with (.*) "(.*)")? that contains "(.*)"$/ do |file, key, value, text|
   File.open(file, 'w') do |f|
     f.write <<EOF
 ---
@@ -25,7 +25,7 @@ EOF
   end
 end
 
-Given /^I have an "(.*)" file that contains "(.*)"$/ do |file, text|
+Given /^I have an? "(.*)" file that contains "(.*)"$/ do |file, text|
   File.open(file, 'w') do |f|
     f.write(text)
     f.close
@@ -39,8 +39,8 @@ Given /^I have a (.*) layout that contains "(.*)"$/ do |layout, text|
   end
 end
 
-Given /^I have a (.*) directory$/ do |dir|
-  FileUtils.mkdir(dir)
+Given /^I have an? (.*) directory$/ do |dir|
+  FileUtils.mkdir_p(dir)
 end
 
 Given /^I have the following posts?(?: (.*) "(.*)")?:$/ do |direction, folder, table|
@@ -57,7 +57,7 @@ Given /^I have the following posts?(?: (.*) "(.*)")?:$/ do |direction, folder, t
     path = File.join(before || '.', '_posts', after || '.', "#{date}-#{title}.#{post['type'] || 'textile'}")
 
     matter_hash = {}
-    %w(title layout tags category categories published author).each do |key|
+    %w(title layout tag tags category categories published author).each do |key|
       matter_hash[key] = post[key] if post[key]
     end
     matter = matter_hash.map { |k, v| "#{k}: #{v}\n" }.join.chomp
@@ -86,8 +86,23 @@ Given /^I have a configuration file with "(.*)" set to "(.*)"$/ do |key, value|
   end
 end
 
+Given /^I have a configuration file with "([^\"]*)" set to:$/ do |key, table|
+  File.open('_config.yml', 'w') do |f|
+    f.write("#{key}:\n")
+    table.hashes.each do |row|
+      f.write("- #{row["Value"]}\n")
+    end
+    f.close
+  end
+end
+
+
 When /^I run jekyll$/ do
   run_jekyll
+end
+
+When /^I debug jekyll$/ do
+  run_jekyll(:debug => true)
 end
 
 When /^I change "(.*)" to contain "(.*)"$/ do |file, text|
@@ -104,15 +119,18 @@ Then /^I should see "(.*)" in "(.*)"$/ do |text, file|
   assert_match Regexp.new(text), File.open(file).readlines.join
 end
 
+Then /^the "(.*)" file should exist$/ do |file|
+  assert File.file?(file)
+end
+
 Then /^the "(.*)" file should not exist$/ do |file|
   assert !File.exists?(file)
 end
 
 Then /^I should see today's time in "(.*)"$/ do |file|
-  assert_match Regexp.new(Time.now.to_s), File.open(file).readlines.join
+  assert_match Regexp.new(Regexp.escape(Time.now.to_s)), File.open(file).readlines.join
 end
 
 Then /^I should see today's date in "(.*)"$/ do |file|
   assert_match Regexp.new(Date.today.to_s), File.open(file).readlines.join
 end
-

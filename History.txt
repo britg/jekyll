@@ -1,3 +1,76 @@
+== Edge
+  * Bug Fixes
+    * Render highlighted code for non markdown/textile pages (#116)
+    * Expand source to full path so includes work anywhere (#101)
+    * Fix highlighting on Ruby 1.9 (#65)
+    * Fix extension munging when pretty permalinks are enabled (#64)
+    * Stop sorting categories (#33)
+
+== 0.5.7 / 2010-01-12
+  * Minor Enhancements
+    * Allow overriding of post date in the front matter (#62, #38)
+  * Bug Fixes
+    * Categories isn't always an array (#73)
+    * Empty tags causes error in read_posts (#84)
+    * Fix pagination to adhere to read/render/write paradigm
+  * Test Enhancement
+    * cucumber features no longer use site.ports.first where a better alternative is available
+
+== 0.5.6 / 2010-01-08
+  * Bug Fixes
+    * Require redcloth >= 4.2.1 in tests (#92)
+    * Don't break on triple dashes in yaml frontmatter (#93)
+  * Minor Enhancements
+    * Allow .mkd as markdown extension
+    * Use $stdout/err instead of constants (#99)
+    * Properly wrap code blocks (#91)
+    * Add javascript mime type for webrick (#98)
+
+== 0.5.5 / 2010-01-08
+  * Bug Fixes
+    * Fix pagination % 0 bug (#78)
+    * Ensure all posts are processed first (#71)
+
+== NOTE
+  * After this point I will no longer be giving credit in the history;
+    that is what the commit log is for.
+
+== 0.5.4 / 2009-08-23
+  * Bug Fixes
+    * Do not allow symlinks (security vulnerability)
+
+== 0.5.3 / 2009-07-14
+  * Bug Fixes
+    * Solving the permalink bug where non-html files wouldn't work [github.com/jeffrydegrande]
+
+== 0.5.2 / 2009-06-24
+  * Enhancements
+    * Added --paginate option to the executable along with a paginator object for the payload [github.com/calavera]
+    * Upgraded RedCloth to 4.2.1, which makes <notextile> tags work once again.
+    * Configuration options set in config.yml are now available through the site payload [github.com/vilcans]
+    * Posts can now have an empty YAML front matter or none at all [github.com/bahuvrihi]
+  * Bug Fixes
+    * Fixing Ruby 1.9 issue that requires to_s on the err object [github.com/Chrononaut]
+    * Fixes for pagination and ordering posts on the same day [github.com/ujh]
+    * Made pages respect permalinks style and permalinks in yml front matter [github.com/eugenebolshakov]
+    * Index.html file should always have index.html permalink [github.com/eugenebolshakov]
+    * Added trailing slash to pretty permalink style so Apache is happy [github.com/eugenebolshakov]
+    * Bad markdown processor in config fails sooner and with better message [github.com/gcnovus]
+    * Allow CRLFs in yaml frontmatter [github.com/juretta]
+    * Added Date#xmlschema for Ruby versions < 1.9
+
+== 0.5.1 / 2009-05-06
+  * Major Enhancements
+    * Next/previous posts in site payload [github.com/pantulis, github.com/tomo]
+    * Permalink templating system
+    * Moved most of the README out to the GitHub wiki
+    * Exclude option in configuration so specified files won't be brought over with generated site [github.com/duritong]
+  * Bug Fixes
+    * Making sure config.yaml references are all gone, using only config.yml
+    * Fixed syntax highlighting breaking for UTF-8 code [github.com/henrik]
+    * Worked around RDiscount bug that prevents Markdown from getting parsed after highlight [github.com/henrik]
+    * CGI escaped post titles [github.com/Chrononaut]
+
 == 0.5.0 / 2009-04-07
   * Minor Enhancements
     * Ability to set post categories via YAML [github.com/qrush]
